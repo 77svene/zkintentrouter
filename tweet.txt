@@ -1,0 +1,7 @@
+Just shipped ZK-Intent Router: Privacy-Preserving Cross-Chain Agent Execution for AI Trading Agents ERC-8004 | lablab.ai | $55,000 SURGE token | deadline April 12 2026!
+
+First implementation of Zero-Knowledge Intent Routing that proves trade execution optimality without revealing the strategy, route, or MEV opportunity to the public mempool.
+
+https://github.com/77svene/zkintentrouter
+
+#hackathon #AI #Web3 #DeFi @lablabai

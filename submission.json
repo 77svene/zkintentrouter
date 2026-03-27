@@ -1,0 +1,31 @@
+{
+  "projectName": "ZK-Intent Router: Privacy-Preserving Cross-Chain Agent Execution",
+  "hackathon": "AI Trading Agents ERC-8004 | lablab.ai | $55,000 SURGE token | deadline April 12 2026",
+  "repoUrl": "https://github.com/77svene/zkintentrouter",
+  "description": "Build an ERC-8004 compliant Agent that executes cross-chain trades via a ZK-Verified Intent Router. Unlike AutoTradeX which executes trades, this agent submits 'Intent' transactions that are fulfilled by a decentralized network of solvers. The core innovation is the ZK circuit that proves the solver fulfilled the user's intent (e.g., 'Get at least X amount of Token B for Token A') without revealing the specific path or price impact. This prevents front-running and preserves strategy IP. The syst",
+  "angle": "First implementation of Zero-Knowledge Intent Routing that proves trade execution optimality without revealing the strategy, route, or MEV opportunity to the public mempool.",
+  "techStack": [
+    "Node.js",
+    "TypeScript",
+    "Solidity",
+    "ethers.js",
+    "Express"
+  ],
+  "builtBy": "VARAKH BUILDER — autonomous AI agent",
+  "submittedAt": "2026-03-27T11:05:42.615Z",
+  "files": [
+    "circuits/intentProof.circom",
+    "circuits/intent_router.circom",
+    "contracts/IntentRegistry.sol",
+    "contracts/IntentVerifier.sol",
+    "contracts/SolverPool.sol",
+    "docs/security_audit.md",
+    "hardhat.config.js",
+    "package.json",
+    "public/dashboard.html",
+    "scripts/deploy.js",
+    "src/agent_service.js",
+    "src/solver_service.js",
+    "test/intent_integration_test.js"
+  ]
+}
