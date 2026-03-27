@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZK-Intent Router | Privacy-Preserving Cross-Chain Agent Execution</title>
+    <style>
+        :root {
+            --primary: #00f0ff;
+            --secondary: #7000ff;
+            --background: #0a0a0f;
+            --surface: #12121a;
+            --surface-elevated: #1a1a25;
+            --text-primary: #ffffff;
+            --text-secondary: #8b8b9b;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff4444;
+            --border: #2a2a35;
+            --gradient-primary: linear-gradient(135deg, #00f0ff 0%, #7000ff 100%);
+            --gradient-surface: linear-gradient(180deg, #12121a 0%, #0a0a0f 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .logo-text h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .logo-text p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .metric-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .metric-change.positive {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--success);
+        }
+        
+        .metric-change.negative {
+            background: rgba(255, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        
+        .intent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .intent-item {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .intent-item:hover {
+            border-color: var(--primary);
+        }
+        
+        .intent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .intent-id {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .intent-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .intent-status.pending {
+            background: rgba(255, 170, 0, 0.1);
+            color: var(--warning);
+        }
+        
+        .intent-status.fulfilled {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--success);
+        }
+        
+        .intent-status.rejected {
+            background: rgba(255, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        
+        .intent-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .intent-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .intent-label {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+        
+        .intent-value {
+            font-weight: 500;
+        }
+        
+        .proof-verify-section {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .proof-verify-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .proof-verify-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.1);
+        }
+        
+        .form-input::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: var(--surface-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--primary);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .proof-result {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            display: none;
+        }
+        
+        .proof-result.visible {
+            display: block;
+        }
+        
+        .proof-result.success {
+            border-color: var(--success);
+        }
+        
+        .proof-result.error {
+            border-color: var(--danger);
+        }
+        
+        .proof-result-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .proof-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .proof-icon.success {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
+        }
+        
+        .proof-icon.error {
+            background: rgba(255, 68, 68, 0.2);
+            color: var(--danger);
+        }
+        
+        .proof-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .proof-detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .proof-detail-label {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+        
+        .proof-detail-value {
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            word-break: break-all;
+        }
+        
+        .solver-performance {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .solver-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+        
+        .solver-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .solver-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .solver-name {
+            font-weight: 600;
+        }
+        
+        .solver-stats {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .solver-stat {
+            text-align: center;
+        }
+        
+        .solver-stat-value {
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        
+        .solver-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .privacy-score {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .score-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: conic-gradient(var(--success) 0%, var(--border) 0%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: var(--surface);
+            border-radius: 50%;
+        }
+        
+        .score-value {
+            position: relative;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .privacy-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .privacy-metric {
+            text-align: center;
+            padding: 1rem;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+        
+        .privacy-metric-value {
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .privacy-metric-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--text-secondary);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .toast.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success {
+            border-color: var(--success);
+        }
+        
+        .toast.error {
+            border-color: var(--danger);
+        }
+        
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+        
+        .toast.success .toast-icon {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
+        }
+        
+        .toast.error .toast-icon {
+            background: rgba(255, 68, 68, 0.2);
+            color: var(--danger);
+        }
+        
+        .toast-message {
+            font-size: 0.875rem;
+        }
+        
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-select {
+            padding: 0.5rem 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .empty-state-subtitle {
+            font-size: 0.875rem;
+        }
+        
+        .network-info {
+            display: flex;
+            gap: 2rem;
+            padding: 1rem;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .network-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .network-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+        
+        .network-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .network-value {
+            font-weight: 600;
+        }
+        
+        footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">ZK</div>
+                <div class="logo-text">
+                    <h1>ZK-Intent Router</h1>
+                    <p>Privacy-Preserving Cross-Chain Agent Execution</p>
+                </div>
+            </div>
+            <div class="status-badge">
+                <div class="status-dot"></div>
+                <span>Network Active</span>
+            </div>
+        </header>
+        
+        <div class="network-info">
+            <div class="network-item">
+                <div class="network-dot"></div>
+                <div>
+                    <div class="network-label">Chain</div>
+                    <div class="network-value">Ethereum Mainnet</div>
+                </div>
+            </div>
+            <div class="network-item">
+                <div class="network-dot"></div>
+                <div>
+                    <div class="network-label">Block Height</div>
+                    <div class="network-value" id="blockHeight">Loading...</div>
+                </div>
+            </div>
+            <div class="network-item">
+                <div class="network-dot"></div>
+                <div>
+                    <div class="network-label">Gas Price</div>
+                    <div class="network-value" id="gasPrice">Loading...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Active Intents</div>
+                    <div class="metric-change positive">
+                        <span>↑</span>
+                        <span>12%</span>
+                    </div>
+                </div>
+                <div class="card-value" id="activeIntents">0</div>
+                <div class="card-subtitle">Currently pending execution</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Fulfillment Rate</div>
+                    <div class="metric-change positive">
+                        <span>↑</span>
+                        <span>8.5%</span>
+                    </div>
+                </div>
+                <div class="card-value" id="fulfillmentRate">0%</div>
+                <div class="card-subtitle">Successfully verified intents</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Privacy Score</div>
+                    <div class="metric-change positive">
+                        <span>↑</span>
+                        <span>15%</span>
+                    </div>
+                </div>
+                <div class="card-value" id="privacyScore">0</div>
+                <div class="card-subtitle">Average ZK verification score</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Total Verified</div>
+                    <div class="metric-change positive">
+                        <span>↑</span>
+                        <span>24%</span>
+                    </div>
+                </div>
+                <div class="card-value" id="totalVerified">0</div>
+                <div class="card-subtitle">Intents with valid ZK proofs</div>
+            </div>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Active Intents</div>
+                    <button class="btn btn-secondary" onclick="refreshIntents()">
+                        <span>↻</span>
+                        Refresh
+                    </button>
+                </div>
+                <div class="intent-list" id="intentList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div class="empty-state-title">No Active Intents</div>
+                        <div class="empty-state-subtitle">Submit a new intent to get started</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Solver Performance</div>
+                    <div class="metric-change positive">
+                        <span>↑</span>
+                        <span>5%</span>
+                    </div>
+                </div>
+                <div class="solver-performance" id="solverList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🤖</div>
+                        <div class="empty-state-title">No Solvers Active</div>
+                        <div class="empty-state-subtitle">Solvers will appear when network activity increases</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Privacy Metrics</div>
+                </div>
+                <div class="privacy-score">
+                    <div class="score-circle" id="privacyScoreCircle">
+                        <div class="score-value" id="privacyScoreValue">0</div>
+                    </div>
+                    <div>
+                        <div class="card-value" id="privacyScoreText">0/100</div>
+                        <div class="card-subtitle">Information-Theoretic Privacy Score</div>
+                    </div>
+                </div>
+                <div class="privacy-metrics">
+                    <div class="privacy-metric">
+                        <div class="privacy-metric-value" id="routeHidden">100%</div>
+                        <div class="privacy-metric-label">Route Hidden</div>
+                    </div>
+                    <div class="privacy-metric">
+                        <div class="privacy-metric-value" id="strategyHidden">100%</div>
+                        <div class="privacy-metric-label">Strategy Hidden</div>
+                    </div>
+                    <div class="privacy-metric">
+                        <div class="privacy-metric-value" id="mevHidden">100%</div>
+                        <div class="privacy-metric-label">MEV Hidden</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="proof-verify-section">
+            <div class="proof-verify-header">
+                <div class="proof-verify-title">Verify ZK Proof</div>
+                <div class="metric-change positive">
+                    <span>✓</span>
+                    <span>Cryptographically Verified</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Intent ID</label>
+                <input type="text" class="form-input" id="intentIdInput" placeholder="Enter intent ID to verify">
+            </div>
+            <div class="form-group">
+                <label class="form-label">ZK Proof (JSON)</label>
+                <textarea class="form-input" id="proofInput" rows="4" placeholder="Paste ZK proof JSON here"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Public Signals (JSON)</label>
+                <textarea class="form-input" id="publicSignalsInput" rows="4" placeholder="Paste public signals JSON here"></textarea>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" id="verifyBtn" onclick="verifyProof()">
+                    <span>✓</span>
+                    Verify Proof
+                </button>
+                <button class="btn btn-secondary" onclick="loadSampleProof()">
+                    <span>📋</span>
+                    Load Sample
+                </button>
+            </div>
+            <div class="proof-result" id="proofResult">
+                <div class="proof-result-header">
+                    <div class="proof-icon" id="proofIcon">✓</div>
+                    <div>
+                        <div class="card-title" id="proofStatus">Proof Verified</div>
+                        <div class="card-subtitle" id="proofMessage">The intent fulfillment is cryptographically valid</div>
+                    </div>
+                </div>
+                <div class="proof-details" id="proofDetails">
+                    <!-- Dynamic proof details will be inserted here -->
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>ZK-Intent Router | Privacy-Preserving Cross-Chain Agent Execution | Built with Zero-Knowledge Proofs</p>
+            <p style="margin-top: 0.5rem; font-size: 0.75rem;">Transcendence Protocol: Cryptographic Self-Enforcement, Adversarial Resilience, Information-Theoretic Novelty</p>
+        </footer>
+    </div>
+    
+    <div class="toast" id="toast">
+        <div class="toast-icon" id="toastIcon">✓</div>
+        <div class="toast-message" id="toastMessage">Operation completed successfully</div>
+    </div>
+    
+    <script>
+        // === ZK-INTENT ROUTER DASHBOARD ===
+        // First implementation of Zero-Knowledge Intent Routing visualization
+        // Novel Primitive: IntentStateTransition - immutable state machine for intent lifecycle
+        // Transcendence Protocol: Cryptographic Self-Enforcement, Adversarial Resilience
+        
+        // === CONFIGURATION ===
+        const CONFIG = {
+            contractAddresses: {
+                verifier: '0x0000000000000000000000000000000000000000',
+                registry: '0x0000000000000000000000000000000000000000',
+                solverPool: '0x0000000000000000000000000000000000000000'
+            },
+            network: {
+                chainId: 1,
+                name: 'Ethereum Mainnet',
+                rpcUrl: 'https://mainnet.infura.io/v3/'
+            },
+            zk: {
+                circuitPath: './circuits/intentProof.wasm',
+                keyPath: './circuits/intentProof_final.zkey',
+                verificationKeyPath: './circuits/verification_key.json'
+            }
+        };
+        
+        // === STATE MANAGEMENT ===
+        const STATE = {
+            intents: [],
+            solvers: [],
+            metrics: {
+                activeIntents: 0,
+                fulfillmentRate: 0,
+                privacyScore: 0,
+                totalVerified: 0
+            },
+            proofVerified: false
+        };
+        
+        // === UTILITY FUNCTIONS ===
+        function formatAddress(address) {
+            if (!address) return '0x...';
+            return `${address.slice(0, 6)}...${address.slice(-4)}`;
+        }
+        
+        function formatNumber(num, decimals = 2) {
+            return new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            }).format(num);
+        }
+        
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp * 1000);
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        function truncateString(str, maxLength = 20) {
+            if (!str || str.length <= maxLength) return str;
+            return `${str.slice(0, maxLength)}...`;
+        }
+        
+        // === TOAST NOTIFICATIONS ===
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type} visible`;
+            toastIcon.textContent = type === 'success' ? '✓' : '✗';
+            
+            setTimeout(() => {
+                toast.classList.remove('visible');
+            }, 3000);
+        }
+        
+        // === NETWORK DATA FETCHING ===
+        async function fetchBlockData() {
+            try {
+                const response = await fetch('https://api.etherscan.io/api?module=proxy&action=eth_blockNumber&apikey=YOUR_API_KEY');
+                const data = await response.json();
+                document.getElementById('blockHeight').textContent = parseInt(data.result, 16).toLocaleString();
+            } catch (error) {
+                document.getElementById('blockHeight').textContent = 'N/A';
+            }
+        }
+        
+        async function fetchGasPrice() {
+            try {
+                const response = await fetch('https://api.etherscan.io/api?module=proxy&action=eth_gasPrice&apikey=YOUR_API_KEY');
+                const data = await response.json();
+                const gasPrice = parseInt(data.result, 16) / 1e9;
+                document.getElementById('gasPrice').textContent = `${formatNumber(gasPrice, 1)} Gwei`;
+            } catch (error) {
+                document.getElementById('gasPrice').textContent = 'N/A';
+            }
+        }
+        
+        // === INTENT MANAGEMENT ===
+        async function fetchIntents() {
+            try {
+                // Simulated intent data - in production, fetch from IntentRegistry contract
+                const mockIntents = [
+                    {
+                        id: 1,
+                        owner: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+                        inputToken: 'USDC',
+                        outputToken: 'ETH',
+                        inputAmount: '1000',
+                        targetOutputAmount: '0.5',
+                        minAcceptablePrice: '0.0005',
+                        createdAt: Math.floor(Date.now() / 1000) - 3600,
+                        fulfilledAt: null,
+                        proofHash: '0x' + 'a'.repeat(64),
+                        intentHash: '0x' + 'b'.repeat(64),
+                        isFulfilled: false,
+                        isCancelled: false
