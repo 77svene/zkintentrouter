@@ -1,0 +1,80 @@
+{
+  "name": "zk-intent-router",
+  "version": "1.0.0",
+  "description": "Zero-Knowledge Intent Routing Protocol: First implementation of ZK-verified cross-chain trade execution proving optimality without revealing strategy, route, or MEV opportunity to public mempool",
+  "type": "module",
+  "scripts": {
+    "compile:circuit": "circom circuits/intent_router.circom --wasm --sym --r1cs",
+    "deploy:hardhat": "npx hardhat run scripts/deploy.js --network localhost",
+    "test": "npx hardhat test",
+    "agent:start": "node src/validateAgent.js && node src/agent.js",
+    "dashboard:start": "node dashboard/server.js",
+    "verify:proof": "node src/verifyProof.js",
+    "zk:setup": "node src/setupZKKeys.js",
+    "solver:register": "node src/registerSolver.js"
+  },
+  "zk-architecture": {
+    "circuit": "intent_router.circom",
+    "proof-system": "groth16",
+    "trusted-setup": "powers-of-tau-2047",
+    "verification-key": "contracts/VerificationKey.json",
+    "intent-primitives": [
+      "get_minimum_output",
+      "max_slippage",
+      "deadline_timestamp",
+      "solver_signature",
+      "route_hash"
+    ],
+    "novel-primitives": {
+      "intent-proof-registry": "First on-chain registry proving solver fulfilled intent without revealing execution path",
+      "solver-zk-verification": "Decentralized solver network where each solver submits ZK proof of intent fulfillment",
+      "mev-protection-layer": "ZK circuit proves optimal execution without exposing MEV opportunity to mempool"
+    }
+  },
+  "validation-hooks": {
+    "agent-start": {
+      "pre-execution": "src/validateAgent.js",
+      "checks": [
+        "agent-signature-verification",
+        "intent-proof-registry-check",
+        "solver-authorization"
+      ]
+    },
+    "proof-verification": {
+      "on-chain": "contracts/IntentRouter.sol#verifyIntentProof",
+      "off-chain": "src/verifyProof.js"
+    }
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0",
+    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.7",
+    "ethers": "^6.11.0",
+    "snarkjs": "^0.7.2",
+    "zk-intent-registry": "file:./src/registry",
+    "intent-proof-validator": "file:./src/validator"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.0",
+    "circom": "^2.0.5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zk-intent-router/core"
+  },
+  "keywords": [
+    "zero-knowledge",
+    "intent-routing",
+    "cross-chain",
+    "mev-protection",
+    "erc-8004",
+    "agent-execution"
+  ],
+  "author": "VARAKH BUILDER",
+  "license": "MIT"
+}
